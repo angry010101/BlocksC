@@ -182,25 +182,7 @@ namespace WindowsFormsApplication2
             gPanel.DrawLine(p, new Point(x1 + 200, y1 + rectheight/2), new Point(x1 + 200, y1 + rectheight + rectheight / 2));
             moveY(rectheight+ rectheight/2);
             retind = starthandleiftrue(index);
-            ifremembertrueend = y1;
-            if (textBox1.Lines[retind+1].IndexOf("else") != -1)
-            {
-                retind = starthandleiffalse(retind+2);
-                if (ifremembertrueend > y1)
-                {
-                    drawVertical(x1 + rectwidth + rectwidth / 2, y1, ifremembertrueend-y1,false);
-                    moveY(ifremembertrueend - y1);
-                }
-                else
-                {
-                    if (ifremembertrueend < y1)
-                    {
-                        drawVertical(x1 - rectwidth - rectwidth / 2, ifremembertrueend, y1 - ifremembertrueend,false);
-                       // moveY(-rectheight-lineverticallength);
-                      //  moveY(y1 - ifremembertrueend);
-                    }
-                }
-            }
+            
             gPanel.DrawLine(p, new Point(x1-rectwidth-1, y1), new Point(2+ x1 + rectwidth*2, y1));
             drawVertical(x1, y1, lineverticallength);
             moveY(lineverticallength);
@@ -208,20 +190,40 @@ namespace WindowsFormsApplication2
         }
         public int starthandleiftrue(int index)
         {
-            int yold = y1;
-            yold1 = y1;
-            x1 -= rectwidth + rectwidth/2;
+            int yold = y1,ifremembertrueend;
+         //   yold1 = y1;
+            x1 -= rectwidth + rectwidth / 2;
             int retint = blockanalyze(index);
-            x1 += rectwidth + rectwidth/2;
-            if (textBox1.Lines[retint + 1].IndexOf("else") == -1){
+            x1 += rectwidth + rectwidth / 2;
+            if (textBox1.Lines[retint + 1].IndexOf("else") == -1)
+            {
                 int dec = y1 - yold;
                 drawVertical(x1 + rectwidth + rectwidth / 2, yold, y1 - yold);
                 moveY(y1 - yold);
                 moveY(-dec);
             }
+            ifremembertrueend = y1;
+            if (textBox1.Lines[retint + 1].IndexOf("else") != -1)
+            {
+                retint = starthandleiffalse(retint + 2,yold);
+                if (ifremembertrueend > y1)
+                {
+                    drawVertical(x1 + rectwidth + rectwidth / 2, y1, ifremembertrueend - y1, false);
+                    moveY(ifremembertrueend - y1);
+                }
+                else
+                {
+                    if (ifremembertrueend < y1)
+                    {
+                        drawVertical(x1 - rectwidth - rectwidth / 2, ifremembertrueend, y1 - ifremembertrueend, false);
+                        // moveY(-rectheight-lineverticallength);
+                        //  moveY(y1 - ifremembertrueend);
+                    }
+                }
+            }
             return retint;
         }
-        public int starthandleiffalse(int index)
+        public int starthandleiffalse(int index,int yold1)
         {
             y1 = yold1;
             x1 += rectwidth + rectwidth / 2;
@@ -287,7 +289,6 @@ namespace WindowsFormsApplication2
                 {
                     inif = true;
                     i = handleif(i+1);
-                    inif = false;
                 }
                 if (s.IndexOf("else") != -1)
                 {
@@ -304,6 +305,7 @@ namespace WindowsFormsApplication2
                     i = handlefor(i);
                     currentfor--;
                 }
+                inif = false;
             }
             return 0;
         }
