@@ -70,7 +70,7 @@ namespace WindowsFormsApplication2
             currentfor = 0;
             countfor = 0;
         }
-        private void drawVertical(int x1,int y1,int length,bool direction=true) 
+        private void drawVertical(int x1,int y1,int length,bool direction=true,bool inif=false) 
         {
             gPanel.DrawLine(p, new Point(x1+rectwidth/2,y1), new Point(x1 + rectwidth / 2, y1+length));
             if (!inif)
@@ -165,7 +165,7 @@ namespace WindowsFormsApplication2
         }
         private int handleif(int index)
         {
-            int retind = 0,ifremembertrueend;
+            int retind = 0;
             s1 = s.Substring(s.IndexOf("(") + 1);
             s1 = s1.Substring(0, s1.IndexOf(')'));
             gPanel.DrawPolygon(p, new Point[] {
@@ -184,7 +184,7 @@ namespace WindowsFormsApplication2
             retind = starthandleiftrue(index);
             
             gPanel.DrawLine(p, new Point(x1-rectwidth-1, y1), new Point(2+ x1 + rectwidth*2, y1));
-            drawVertical(x1, y1, lineverticallength);
+            drawVertical(x1, y1, lineverticallength,false,true);
             moveY(lineverticallength);
             return retind;
         }
@@ -198,7 +198,7 @@ namespace WindowsFormsApplication2
             if (textBox1.Lines[retint + 1].IndexOf("else") == -1)
             {
                 int dec = y1 - yold;
-                drawVertical(x1 + rectwidth + rectwidth / 2, yold, y1 - yold);
+                drawVertical(x1 + rectwidth + rectwidth / 2, yold, y1 - yold,false,true);
                 moveY(y1 - yold);
                 moveY(-dec);
             }
@@ -208,14 +208,14 @@ namespace WindowsFormsApplication2
                 retint = starthandleiffalse(retint + 2,yold);
                 if (ifremembertrueend > y1)
                 {
-                    drawVertical(x1 + rectwidth + rectwidth / 2, y1, ifremembertrueend - y1, false);
+                    drawVertical(x1 + rectwidth + rectwidth / 2, y1, ifremembertrueend - y1, false,true);
                     moveY(ifremembertrueend - y1);
                 }
                 else
                 {
                     if (ifremembertrueend < y1)
                     {
-                        drawVertical(x1 - rectwidth - rectwidth / 2, ifremembertrueend, y1 - ifremembertrueend, false);
+                        drawVertical(x1 - rectwidth - rectwidth / 2, ifremembertrueend, y1 - ifremembertrueend, false,true);
                         // moveY(-rectheight-lineverticallength);
                         //  moveY(y1 - ifremembertrueend);
                     }
@@ -287,7 +287,6 @@ namespace WindowsFormsApplication2
                 }
                 if (s.IndexOf("if") != -1)
                 {
-                    inif = true;
                     i = handleif(i+1);
                 }
                 if (s.IndexOf("else") != -1)
@@ -305,7 +304,6 @@ namespace WindowsFormsApplication2
                     i = handlefor(i);
                     currentfor--;
                 }
-                inif = false;
             }
             return 0;
         }
