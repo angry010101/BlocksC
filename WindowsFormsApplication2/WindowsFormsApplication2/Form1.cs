@@ -41,6 +41,11 @@ namespace WindowsFormsApplication2
         bool inif = false;
         int iftruenow = 0;
 
+
+        String[] keywords =
+        {
+            "int", "double", "float","byte","long","char", "bool"
+        };
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
 
@@ -162,6 +167,17 @@ namespace WindowsFormsApplication2
             drawVertical(x1, y1, lineverticallength);
             moveY(lineverticallength);
         }
+        private void handleoperation()
+        {
+            s1 = s.Substring(0, s.IndexOf(';'));
+           // rect1.Y = y1;
+
+            gPanel.DrawRectangle(p, x1, y1, rectwidth, rectheight);
+            gPanel.DrawString(s1, font1, Brushes.Blue, new Rectangle(x1, y1, rectwidth, rectheight), stringFormat);
+            moveY(rectheight);
+            drawVertical(x1, y1, lineverticallength);
+            moveY(lineverticallength);
+        }
         private void moveY(int y)
         {
             this.y1 += y;
@@ -256,66 +272,73 @@ namespace WindowsFormsApplication2
             x1 -= rectwidth + rectwidth / 2;
             return retint;
         }
-        public int blockanalyze(int line=0)
+        public bool checkistype(String s)
         {
+            for (int i = 0; i < keywords.Length; i++)
+            {
+                if (s.IndexOf(keywords[i]) != -1){
+                    return true;
+                }
+            }
+            return false;
+        }
+        public int blockanalyze(int line = 0)
+        {
+            bool iscommand = false;
             int countbrackets = 0;
             for (int i = line; i < textBox1.Lines.Length; i++)
             {
                 s = textBox1.Lines[i];
+                if (s == "" || s.IndexOf("return") !=-1 ) continue;
                 if (s.IndexOf("//") != -1)
                 {
+                    iscommand = true;
                     s = s.Substring(0, s.IndexOf("//"));
+                }
+                if (checkistype(s))
+                {
+                    if (s.IndexOf("(") == -1) {
+                        if (s.IndexOf("=") == -1)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            s = s.Substring(s.IndexOf(" "));
+                        }
+                    }
+                }
+                if (s.IndexOf("#") != -1 || s.IndexOf("using") != -1)
+                {
+                    continue;
                 }
                 if (s.IndexOf("{") != -1)
                 {
+                    iscommand = true;
                     countbrackets++;
                 }
                 if (s.IndexOf("}") != -1)
                 {
+                    iscommand = true;
                     countbrackets--;
                 }
                 if (countbrackets == 0)
                 {
                     return i;
                 }
-            /*    if (ifenable)
-                {
-                    if (s.IndexOf("}") != -1)
-                    {
-                        ifenable = false;
-                        x1 += 150;
-                    }
-                    if (i + 1 < textBox1.Lines.Length)
-                    {
-                        if (textBox1.Lines[i + 1].IndexOf("else") == -1)
-                        {
-                            //  gPanel.DrawLine(p, new Point(x1 + 200, ify1), new Point(x1 + 200, y1 + 10));
-                            //   gPanel.DrawLine(p, new Point(x1 - 100, y1), new Point(x1 + 202, y1));
-                        }
-                    }
-                }
-                if (elseenable)
-                {
-                    if (s.IndexOf("}") != -1)
-                    {
-                        elseenable = false;
-                        x1 -= 150;
-                        gPanel.DrawLine(p, new Point(x1 - 100, y1), new Point(x1 + 202, y1));
-                        y1 += 10;
-                        gPanel.DrawLine(p, new Point(x1 + 50, y1 - 10), new Point(x1 + 50, y1));
-                    }
-
-                }*/
                 if (s.IndexOf("<<") != -1)
                 {
+                    iscommand = true;
                     handleout();
                 }
                 if (s.IndexOf(">>") != -1)
                 {
+                    iscommand = true;
                     handlein();
                 }
                 if (s.IndexOf("if") != -1)
                 {
+                    iscommand = true;
                     if (countif==0)
                     {
                         currentif = calculateif(i);
@@ -326,9 +349,11 @@ namespace WindowsFormsApplication2
                 }
                 if (s.IndexOf("else") != -1)
                 {
+                    iscommand = true;
                 }
                 if (s.IndexOf("for") != -1 || s.IndexOf("while") != -1) // for and while,dowhile are the same
                 {
+                    iscommand = true;
                     if (currentfor == 0)
                     {
                         currentfor = calculate("for", i);
@@ -339,6 +364,11 @@ namespace WindowsFormsApplication2
                     i = handlefor(i);
                     currentfor--;
                 }
+                if (!iscommand)
+                {
+                    handleoperation();
+                }
+                iscommand = false;
             }
             return 0;
         }
@@ -576,4 +606,16 @@ cin >> x;
 }
 }
 
+
+6:
+
+    #include <iostream.h>
+
+using namespace std;
+
+int main(){
+cin >> x;
+cout << x;
+return 0;
+}
     */
