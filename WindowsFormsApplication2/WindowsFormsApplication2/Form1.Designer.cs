@@ -77,7 +77,7 @@
             // panel1
             // 
             this.panel1.AutoScroll = true;
-            this.panel1.AutoScrollMinSize = new System.Drawing.Size(2000, 2000);
+            this.panel1.AutoScrollMinSize = new System.Drawing.Size(9999, 9999);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(708, 3);
             this.panel1.Name = "panel1";

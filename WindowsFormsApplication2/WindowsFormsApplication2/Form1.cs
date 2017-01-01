@@ -39,6 +39,7 @@ namespace WindowsFormsApplication2
         String s, s1;
         int currentfor = 0,countfor = 0,currentwhile = 0, countwhile=0,countif=0,currentif=0;
         bool inif = false;
+        int iftruenow = 0;
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
         {
@@ -107,7 +108,7 @@ namespace WindowsFormsApplication2
         public void drawHorizontalif(int x1,int y1, int length)
         {
             gPanel.DrawLine(p, new Point(x1, y1 + rectheight / 2), new Point(x1 - length, y1 + rectheight / 2));
-            gPanel.DrawLine(p, new Point(x1 + length, y1 + rectheight / 2), new Point(x1 + length * 2, y1 + rectheight / 2));
+            gPanel.DrawLine(p, new Point(x1 + rectwidth, y1 + rectheight / 2), new Point(x1 + length + rectwidth, y1 + rectheight / 2));
         }
         public void drawHorizontal(int x1, int y1, int length)
         {
@@ -168,9 +169,24 @@ namespace WindowsFormsApplication2
         private int handleif(int index)
         {
             int retind = 0;
+
+        /*    switch (iftruenow)
+            {
+                case 1:
+                    {
+                        x1 -= calculateoffset(index)-1 * rectwidth;
+                        break;
+                    }
+                case -1:
+                    {
+                        x1 += calculateoffset(index)-1 * rectwidth;
+                        break;
+                    }
+            }
+            iftruenow = 1;*/
             s1 = s.Substring(s.IndexOf("(") + 1);
             s1 = s1.Substring(0, s1.IndexOf(')'));
-            x1 -= Math.Abs(currentif - countif) * rectwidth * 2;
+           // x1 -= Math.Abs(currentif - countif) * rectwidth * 3;
             gPanel.DrawPolygon(p, new Point[] {
                 new Point(x1 + rectwidth/2, y1),
                 new Point(x1 + rectwidth, y1 + rectheight/2),
@@ -179,16 +195,17 @@ namespace WindowsFormsApplication2
                 new Point(x1 + rectwidth/2, y1 + rectheight),
                 new Point(x1, y1 + rectheight/2) });
             gPanel.DrawString(s1, font1, Brushes.Blue, new Rectangle(x1, y1, rectwidth, rectheight), stringFormat);
-            drawHorizontalif(x1,y1,rectwidth);
+            drawHorizontalif(x1,y1,rectwidth+rectwidth*calculateoffset(index));
 
-            gPanel.DrawLine(p, new Point(x1 - 100, y1 + rectheight/2), new Point(x1 - 100, y1 + rectheight + rectheight / 2));
-            gPanel.DrawLine(p, new Point(x1 + 200, y1 + rectheight/2), new Point(x1 + 200, y1 + rectheight + rectheight / 2));
+            gPanel.DrawLine(p, new Point(x1 - rectwidth - rectwidth * calculateoffset(index), y1 + rectheight/2), new Point(x1 - rectwidth - rectwidth * calculateoffset(index), y1 + rectheight + rectheight / 2));
+            gPanel.DrawLine(p, new Point(x1 + 2*rectwidth + rectwidth * calculateoffset(index), y1 + rectheight/2), new Point(x1 + 2*rectwidth + rectwidth * calculateoffset(index), y1 + rectheight + rectheight / 2));
             moveY(rectheight+ rectheight/2);
+            x1 -= rectwidth * calculateoffset(index);
             retind = starthandleiftrue(index);
-            
-            gPanel.DrawLine(p, new Point(x1-rectwidth-1, y1), new Point(2+ x1 + rectwidth*2, y1));
+            gPanel.DrawLine(p, new Point(x1-rectwidth-1 - rectwidth * calculateoffset(index), y1), new Point(2+ x1 + rectwidth*2 + rectwidth * calculateoffset(index), y1)); ////////
             drawVertical(x1, y1, lineverticallength,false,true);
             moveY(lineverticallength);
+            iftruenow = 0;
             return retind;
         }
         public int starthandleiftrue(int index)
@@ -201,29 +218,34 @@ namespace WindowsFormsApplication2
             if (textBox1.Lines[retint + 1].IndexOf("else") == -1)
             {
                 int dec = y1 - yold;
-                drawVertical(x1 + rectwidth + rectwidth / 2, yold, y1 - yold,false,true);
+                drawVertical(x1 + rectwidth + rectwidth / 2 + 2*rectwidth * calculateoffset(index), yold, y1 - yold,false,true);
                 moveY(y1 - yold);
                 moveY(-dec);
             }
             ifremembertrueend = y1;
+            x1 += rectwidth * calculateoffset(index);
             if (textBox1.Lines[retint + 1].IndexOf("else") != -1)
             {
+                iftruenow = -1;
+                x1 += rectwidth * calculateoffset(index);
                 retint = starthandleiffalse(retint + 2,yold);
+                x1 -= rectwidth * calculateoffset(index);
                 if (ifremembertrueend > y1)
                 {
-                    drawVertical(x1 + rectwidth + rectwidth / 2, y1, ifremembertrueend - y1, false,true);
+                    drawVertical(x1 + rectwidth + rectwidth / 2 + rectwidth * calculateoffset(index), y1, ifremembertrueend - y1, false,true);
                     moveY(ifremembertrueend - y1);
                 }
                 else
                 {
                     if (ifremembertrueend < y1)
                     {
-                        drawVertical(x1 - rectwidth - rectwidth / 2, ifremembertrueend, y1 - ifremembertrueend, false,true);
+                        drawVertical(x1 - rectwidth - rectwidth / 2 - rectwidth * calculateoffset(index), ifremembertrueend, y1 - ifremembertrueend, false,true);
                         // moveY(-rectheight-lineverticallength);
                         //  moveY(y1 - ifremembertrueend);
                     }
                 }
             }
+            iftruenow = 0;
             return retint;
         }
         public int starthandleiffalse(int index,int yold1)
@@ -240,6 +262,10 @@ namespace WindowsFormsApplication2
             for (int i = line; i < textBox1.Lines.Length; i++)
             {
                 s = textBox1.Lines[i];
+                if (s.IndexOf("//") != -1)
+                {
+                    s = s.Substring(0, s.IndexOf("//"));
+                }
                 if (s.IndexOf("{") != -1)
                 {
                     countbrackets++;
@@ -296,7 +322,7 @@ namespace WindowsFormsApplication2
                         countif = calculateif(i);
                     }
                     i = handleif(i+1);
-                    countif--;
+                    currentif--;
                 }
                 if (s.IndexOf("else") != -1)
                 {
@@ -384,6 +410,28 @@ namespace WindowsFormsApplication2
             } while (countbrackets != 0);
             return count;
         }
+        public int calculateoffset(int i)
+        {
+            int count = 0, countbrackets = 0;
+            do
+            {
+                s1 = textBox1.Lines[i];
+                if (s1.IndexOf("for") != -1 || s1.IndexOf("while") != -1 || s1.IndexOf("if") != -1)
+                {
+                    count++;
+                }
+                if (textBox1.Lines[i].IndexOf("{") != -1)
+                {
+                    countbrackets++;
+                }
+                if (textBox1.Lines[i].IndexOf("}") != -1)
+                {
+                    countbrackets--;
+                }
+                i++;
+            } while (countbrackets != 0);
+            return count;
+        }
         public int calculate(String s,int i)
         {
             String s1;
@@ -412,6 +460,7 @@ namespace WindowsFormsApplication2
             gPanel = panel1.CreateGraphics();
             gPanel.Clip = new Region(new RectangleF(0, 0, 9999, 9999));
             x1 = x2;
+            x1 += 2*rectwidth+calculateoffset(0)*rectwidth;
             y1 = y2;
             x1 += offsetx;
             currentfor = 0;
@@ -498,5 +547,33 @@ cout << "fsfs";
 }
 }
 } 
+
+5:    int main(){
+cout << "fsfsf";
+cin >> x;
+if (x>0) 
+{
+cout << "fsfs";
+if (x>0) 
+{
+cout << "fsfs";
+while(x>0)
+{
+cin >> x;
+while(x>0)
+{
+cin >> x;
+}
+}
+}
+else 
+{
+while(x>0)
+{
+cin >> x;
+}
+}
+}
+}
 
     */
