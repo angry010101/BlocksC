@@ -37,7 +37,7 @@ namespace WindowsFormsApplication2
         Graphics gPanel;
         Pen p = new Pen(Color.Blue, 3);
         String s, s1;
-        int currentfor = 0,countfor = 0,currentwhile = 0, countwhile=0;
+        int currentfor = 0,countfor = 0,currentwhile = 0, countwhile=0,countif=0,currentif=0;
         bool inif = false;
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -69,6 +69,8 @@ namespace WindowsFormsApplication2
             gPanel.Dispose();
             currentfor = 0;
             countfor = 0;
+            countif = 0;
+            currentif = 0;
         }
         private void drawVertical(int x1,int y1,int length,bool direction=true,bool inif=false) 
         {
@@ -168,6 +170,7 @@ namespace WindowsFormsApplication2
             int retind = 0;
             s1 = s.Substring(s.IndexOf("(") + 1);
             s1 = s1.Substring(0, s1.IndexOf(')'));
+            x1 -= Math.Abs(currentif - countif) * rectwidth * 2;
             gPanel.DrawPolygon(p, new Point[] {
                 new Point(x1 + rectwidth/2, y1),
                 new Point(x1 + rectwidth, y1 + rectheight/2),
@@ -287,7 +290,13 @@ namespace WindowsFormsApplication2
                 }
                 if (s.IndexOf("if") != -1)
                 {
+                    if (countif==0)
+                    {
+                        currentif = calculateif(i);
+                        countif = calculateif(i);
+                    }
                     i = handleif(i+1);
+                    countif--;
                 }
                 if (s.IndexOf("else") != -1)
                 {
@@ -350,6 +359,30 @@ namespace WindowsFormsApplication2
             drawVertical(x1, y1,rectheight / 2);
             moveY(rectheight / 2);
             return index;
+        }
+
+        public int calculateif(int i)
+        {
+            int count = 1, countbrackets = 0,temp=0;
+            do
+            {
+                s1 = textBox1.Lines[i];
+                if (s1.IndexOf("if") != -1)
+                {
+                    count += calculateif(i+1);
+                    return count;
+                }
+                if (textBox1.Lines[i + 1].IndexOf("{") != -1)
+                {
+                    countbrackets++;
+                }
+                if (textBox1.Lines[i + 1].IndexOf("}") != -1)
+                {
+                    countbrackets--;
+                }
+                i++;
+            } while (countbrackets != 0);
+            return count;
         }
         public int calculate(String s,int i)
         {
@@ -447,5 +480,23 @@ cout << "fsfs";
 }
 }
 }
+
+   4:
+   int main(){
+cout << "fsfsf";
+cin >> x;
+if (x>0) 
+{
+cout << "fsfs";
+if (x>0) 
+{
+cout << "fsfs";
+if (x>0) 
+{
+cout << "fsfs";
+}
+}
+}
+} 
 
     */
