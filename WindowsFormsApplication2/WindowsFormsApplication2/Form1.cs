@@ -31,8 +31,8 @@ namespace WindowsFormsApplication2
         {
             
         }
-        const int xbase = 0, ybase = 0, shift = 100, rectwidth=100,rectheight=50;
-        int x1 = 10, y1 = 10, lineverticallength = 10, offsetx=500;
+        const int xbase = 0, ybase = 0, shift = 100, rectwidth=150,rectheight=50;
+        int x1 = 10, y1 = 10, lineverticallength = 10, offsetx=50,offsety=10;
         int yold1;
         Graphics gPanel;
         Pen p = new Pen(Color.Blue, 3);
@@ -40,7 +40,8 @@ namespace WindowsFormsApplication2
         int currentfor = 0,countfor = 0,currentwhile = 0, countwhile=0,countif=0,currentif=0;
         bool inif = false;
         int iftruenow = 0;
-
+        Bitmap img;
+        int foroffsetline = 25;
 
         String[] keywords =
         {
@@ -64,6 +65,9 @@ namespace WindowsFormsApplication2
             drawbegin();
             blockanalyze();
             drawend();
+            Graphics g1 = panel1.CreateGraphics();
+            g1.Clear(Color.Black);
+            g1.DrawImage(img, 0, 0);
             destruction();
             /*      Graphics gPanel = panel1.CreateGraphics();
                   Pen p = new Pen(Color.Red, 3);
@@ -143,6 +147,9 @@ namespace WindowsFormsApplication2
             drawbegin();
             blockanalyze();
             drawend();
+            Graphics g1 = panel1.CreateGraphics();
+            g1.Clear(Color.Black);
+            g1.DrawImage(img, 0, 0);
             destruction();
         }
 
@@ -169,6 +176,7 @@ namespace WindowsFormsApplication2
         }
         private void handleoperation()
         {
+            
             s1 = s.Substring(0, s.IndexOf(';'));
            // rect1.Y = y1;
 
@@ -178,6 +186,14 @@ namespace WindowsFormsApplication2
             drawVertical(x1, y1, lineverticallength);
             moveY(lineverticallength);
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            //Save the image
+            img.Save("test.bmp");
+            MessageBox.Show("Done!");
+        }
+
         private void moveY(int y)
         {
             this.y1 += y;
@@ -218,7 +234,7 @@ namespace WindowsFormsApplication2
             moveY(rectheight+ rectheight/2);
             x1 -= rectwidth * calculateoffset(index);
             retind = starthandleiftrue(index);
-            gPanel.DrawLine(p, new Point(x1-rectwidth-1 - rectwidth * calculateoffset(index), y1), new Point(2+ x1 + rectwidth*2 + rectwidth * calculateoffset(index), y1)); ////////
+            gPanel.DrawLine(p, new Point(x1 - rectwidth - 1 - rectwidth * calculateoffset(index), y1), new Point(2 + x1 + rectwidth * 2 + rectwidth * calculateoffset(index), y1));
             drawVertical(x1, y1, lineverticallength,false,true);
             moveY(lineverticallength);
             iftruenow = 0;
@@ -289,7 +305,8 @@ namespace WindowsFormsApplication2
             for (int i = line; i < textBox1.Lines.Length; i++)
             {
                 s = textBox1.Lines[i];
-                if (s == "" || s.IndexOf("return") !=-1 ) continue;
+                s = s.Replace("\t", string.Empty);
+                if (s == "" || s.IndexOf("return") !=-1 || s.Replace(" ", string.Empty)=="") continue;
                 if (s.IndexOf("//") != -1)
                 {
                     iscommand = true;
@@ -362,7 +379,7 @@ namespace WindowsFormsApplication2
                         countfor += calculate("while", i);
                     }
                     i = handlefor(i);
-                    currentfor--;
+                    currentfor=0;
                 }
                 if (!iscommand)
                 {
@@ -370,6 +387,7 @@ namespace WindowsFormsApplication2
                 }
                 iscommand = false;
             }
+            countfor = 0;
             return 0;
         }
         public int handlefor(int index)
@@ -402,15 +420,16 @@ namespace WindowsFormsApplication2
             moveY(rectheight);
             drawVertical(x1, y1, lineverticallength);
             moveY(lineverticallength);
-            index = blockanalyze(index + 1);
+            int temp = rectwidth * calculateoffset(index+1);// + Math.Abs(currentfor - countfor) * rectwidth;
+            index = blockanalyze(index + 1) ;
             drawVertical(x1, y1, lineverticallength);
             moveY(lineverticallength);
-            drawVertical(x1 - rectwidth - rectwidth/2 - Math.Abs(currentfor-countfor)*rectwidth, yold+rectheight/2, y1 - yold - rectheight/2,false);
-            drawHorizontal(x1+rectwidth/2+2, y1-lineverticallength*2-lineverticallength/2, rectwidth+rectwidth/2+3 + Math.Abs(currentfor - countfor) * rectwidth);
-            drawHorizontal(xold-rectwidth/3, yold, rectwidth-rectwidth/3 + Math.Abs(currentfor - countfor) * rectwidth);
-            drawHorizontal(xold + rectwidth  + rectwidth + Math.Abs(currentfor - countfor) * rectwidth, yold, rectwidth - rectwidth / 3 + Math.Abs(currentfor - countfor) * rectwidth);
-            drawVertical(x1 + rectwidth + rectwidth/2-1 + Math.Abs(currentfor - countfor) * rectwidth, yold + rectheight / 2, y1 - yold);
-            drawHorizontal(x1 + rectwidth*2 + Math.Abs(currentfor - countfor) * rectwidth, y1 , rectwidth + rectwidth / 2 + 1 + Math.Abs(currentfor - countfor) * rectwidth);
+            drawVertical(x1 - rectwidth/2 - rectwidth - temp, yold+rectheight/2, y1 - yold - rectheight/2,false);
+            drawHorizontal(x1+rectwidth/2+2, y1-lineverticallength-rectheight/3, rectwidth+rectwidth/2+3 +temp);////
+            drawHorizontal(xold-rectwidth/3, yold, rectwidth-rectwidth/3 +temp);
+            drawHorizontal(xold + rectwidth  + rectwidth + temp, yold, rectwidth - rectwidth / 3 + temp);
+            drawVertical(x1 + rectwidth + rectwidth/2-1 + temp, yold + rectheight / 2, y1 - yold);
+            drawHorizontal(x1 + rectwidth*2 + temp, y1 , rectwidth + rectwidth / 2 + 1 + temp);
             moveY(rectheight / 2);
             drawVertical(x1, y1,rectheight / 2);
             moveY(rectheight / 2);
@@ -468,16 +487,16 @@ namespace WindowsFormsApplication2
             int count = 0,countbrackets=0;
             do
             {
-                s1 = textBox1.Lines[i];
+                s1 = textBox1.Lines[i+1];
                 if (s1.IndexOf(s) != -1)
                 {
                     count++;
                 }
-                if (textBox1.Lines[i+1].IndexOf("{") != -1)
+                if (s1.IndexOf("{") != -1)
                 {
                     countbrackets++;
                 }
-                if (textBox1.Lines[i + 1].IndexOf("}") != -1)
+                if (s1.IndexOf("}") != -1)
                 {
                     countbrackets--;
                 }
@@ -485,14 +504,16 @@ namespace WindowsFormsApplication2
             } while (countbrackets != 0);
             return count;
         }
-        public void initialization(int x2 = 200,int y2=10)
+        public void initialization(int x2 = 00,int y2=10)
         {
-            gPanel = panel1.CreateGraphics();
+            img = new Bitmap(rectwidth*3*(2*calculateglobaloffset()+1),9999);
+            gPanel = Graphics.FromImage(img);
             gPanel.Clip = new Region(new RectangleF(0, 0, 9999, 9999));
             x1 = x2;
-            x1 += 2*rectwidth+calculateoffset(0)*rectwidth;
+            x1 += calculateglobaloffset()*rectwidth*3;
             y1 = y2;
             x1 += offsetx;
+            y1 += offsety;
             currentfor = 0;
             gPanel.Clear(Color.White);
             font1 = new Font("Arial", 12, FontStyle.Bold, GraphicsUnit.Point);
@@ -501,6 +522,35 @@ namespace WindowsFormsApplication2
             stringFormat = new StringFormat();
             stringFormat.Alignment = StringAlignment.Center;
             stringFormat.LineAlignment = StringAlignment.Center;
+        }
+        public int calculateglobaloffset()
+        {
+            int i = 0;
+            while (textBox1.Lines[i++].IndexOf("{") != -1) ;
+            int countbrackets = 0,countin=0,max=0;
+            
+            while (i < textBox1.Lines.Length)
+            {
+                if (textBox1.Lines[i].IndexOf("{") != -1 ) countbrackets++;
+                if (textBox1.Lines[i].IndexOf("}") != -1) countbrackets--;
+                if (countbrackets == 0)
+                {
+                    if (max < countin)
+                    {
+                        max = countin;
+                    }
+                    countin = 0;
+                }
+                else
+                {
+                    if (textBox1.Lines[i].IndexOf("for") != -1 || textBox1.Lines[i].IndexOf("while") != -1 || textBox1.Lines[i].IndexOf("if") != -1)
+                    {
+                        countin++;
+                    }
+                }
+                i++;
+            }
+            return max;
         }
         public void drawbegin()
         {
@@ -618,4 +668,114 @@ cin >> x;
 cout << x;
 return 0;
 }
-    */
+
+    7:
+    
+int main(){
+	int k;
+	cin >> k;
+	
+	int p[100][100];
+	int n;
+	for (int i=0;i<k; i++)
+    {
+		for (int j=0;j<100; j++)
+        {
+			cin >> n;
+			p[i][j]= n;
+			if (n==0)
+            {
+				break;
+			}
+		}
+	}
+
+	bool fl2=true,fl1=true;
+	int vz=-999999,yb=999999;
+	for (int i=0;i<k; i++)
+    {
+		for (int j=0;j<100; j++)
+        {
+			if (p[i][j]==0)
+            {
+				break;
+			}
+			if (vz<p[i][j]) 
+            {
+				vz = p[i][j];
+			}
+			else
+            {
+				fl1 = false;
+			}
+			if (yb>p[i][j])
+            {
+				yb = p[i][j];
+			}
+			else
+            {
+				fl2 = false;
+			}
+			if (!fl1 && !fl2)
+            {
+				cout << i << ":  " << "0" << endl;
+		//		break;
+			}
+		}
+		if (fl2)
+        {
+			cout << i << ": " << "-1" << endl;
+		}
+		if (fl1)
+        {
+			cout << i << ": " << "1" << endl;
+		}
+		fl1=true;
+		fl2=true;
+		vz=-999999,yb=999999;
+	}
+	return 0;
+}
+
+ 7.1:
+ 
+     int main(){
+	int k;
+	cin >> k;
+	int p[100][100];
+	int n;
+	for (int i=0;i<k; i++)
+    {
+		for (int j=0;j<100; j++)
+        {
+			cin >> n;
+			p[i][j]= n;
+			if (n==0)
+            {
+				break;
+			}
+		}
+	}
+    return 0;
+    }
+
+
+    8: int main(){
+cin >> x;
+if (y>0)
+{
+if (x>0)
+{
+cin >> x;
+}
+cout << x;
+}
+else
+{
+cin >> x;
+for (int i)
+{
+cin >> x;
+}
+}
+     */
